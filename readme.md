@@ -2711,6 +2711,15 @@ int largestVariance(string s) {
 ```cpp
 max_element(nums.begin(),nums.end());
 accumulate(nums.begin(),nums.end(),0);
+
+totalStrength(vector<int>& s) {
+    long long res = 0, sz = s.size(), mod = 1000000007;
+    vector<int> st; // mono-increasing stack.
+    vector<long long> pps(s.size() + 1);
+    partial_sum(begin(s), end(s), begin(pps) + 1, [&](int s, int n){ return (s + n) % mod; });
+    partial_sum(begin(pps), end(pps), begin(pps));
+}
+
 ```
 
 ```cpp
@@ -2767,5 +2776,117 @@ QUICKSORT(A, p, r)
         QUICKSORT (A, p, q)//key difference
         QUICKSORT (A, q+1, r)
 
+```
+
+# 8.29 continuous maximum subarray
+
+```cpp
+int maxSubArray(vector<int>& nums) {
+        int n = nums.size();
+        if(n==1)
+            return nums[0];
+        int tmp_max = nums[0];
+        for(int i=1;i<n;i++){
+            nums[i] = max(nums[i]+nums[i-1],nums[i]);
+            if(nums[i]>tmp_max)
+                tmp_max = nums[i];
+        }
+        
+        return tmp_max;
+    }
+```
+
+# 9.4 bitset 的利用，字母树问题
+
+```cpp
+#include <bits/stdc++.h>
+ 
+using namespace std;
+const int N = 5e4 + 10;
+int n, res[N], x;
+vector<int> g[N];
+char d[N];
+bitset<30> b[N];
+void dfs(int u)
+{
+    for (int ne : g[u])
+    {
+        dfs(ne);
+    }
+    b[u][d[u] - 'A'] = 1;
+    for (int ne : g[u])
+    {
+        b[u] |= b[ne];
+    }
+}
+int main()
+{
+    scanf("%d", &n);
+    for (int i = 2; i <= n; i++)
+    {
+        scanf("%d", &x);
+        g[x].push_back(i);
+    }
+    scanf("%s", d + 1);
+    dfs(1);
+    for (int i = 1; i <= n; i++)
+    {
+        printf("%d ", (int)b[i].count());
+    }
+    return 0;
+}
+```
+
+# 9.28 k-sorted array(nearly sorted) geeksforgeeks
+
+Given an array of n elements, where each element is at most k away from its target position, devise an algorithm that sorts in O(n log k) time.
+
+1.   using heap with size k. O(nlogk)
+2.   using quicksort with modification k.
+
+```cpp
+#include <bits/stdc++.h>
+#include <iostream>
+using namespace std;
+ 
+int sort(vector<int>& array, int l, int h, int k)
+{
+    int mid = l + (h - l) / 2; //Choose middle element as pivot
+    int i = max(l, mid - k), j = i, end = min(mid + k, h); // Set appropriate range
+    swap(array[mid], array[end]); //Swap middle and last element to avoid extra complications
+    while (j < end) {
+        if (array[j] < array[end]) {
+            swap(array[i++], array[j]);
+        }
+        j = j + 1;
+    }
+    swap(array[end], array[i]);
+    return i;
+}
+ 
+void ksorter(vector<int>& array, int l, int h, int k)
+{
+    if (l < h) {
+        int q = sort(array, l, h, k);
+        ksorter(array, l, q - 1, k);
+        ksorter(array, q + 1, h, k);
+    }
+}
+ 
+int main()
+{
+    vector<int> array(
+        { 3, 3, 2, 1, 6, 4, 4, 5, 9, 7, 8, 11, 12 });
+    int k = 3;
+    cout << "Array before k sort\n";
+    for (int& num : array)
+        cout << num << ' ';
+    cout << endl;
+    ksorter(array, 0, array.size() - 1, k);
+    cout << "Array after k sort\n";
+    for (int& num : array)
+        cout << num << ' ';
+    return 0;
+}
 ```
 
